@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: medical-ai-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/medical_ai.db
+      - MODEL_CHECKPOINT_PATH=models/chest_xray_densenet121.pt
+      - GRADCAM_OUTPUT_DIR=static/gradcam_outputs
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - CORS_ORIGINS=*
+    volumes:
+      - ./models:/app/models
+      - ./static:/app/static
+      - db-data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    image: python:3.11-slim
+    container_name: medical-ai-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app/frontend
+      - ./requirements.txt:/app/requirements.txt
+    command: >
+      bash -c "pip install --no-cache-dir streamlit requests &&
+               streamlit run frontend/streamlit_app.py --server.port 8501 --server.address 0.0.0.0"
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  db-data:

@@ -1,0 +1,33 @@
+# --- Web framework / API ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+pydantic==2.9.2
+
+# --- Database ---
+sqlalchemy==2.0.35
+
+# --- Deep learning ---
+torch==2.4.1
+torchvision==0.19.1
+numpy==1.26.4
+Pillow==10.4.0
+matplotlib==3.9.2
+
+# --- Metrics / evaluation ---
+scikit-learn==1.5.2
+seaborn==0.13.2
+
+# --- LLM integration ---
+google-genai==1.2.0
+
+# --- Frontend ---
+streamlit==1.38.0
+requests==2.32.3
+
+# --- Config ---
+python-dotenv==1.0.1
+
+# --- Testing ---
+pytest==8.3.3
+httpx==0.27.2
