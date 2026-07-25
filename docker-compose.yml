@@ -10,8 +10,9 @@ services:
       - DATABASE_URL=sqlite:///./data/medical_ai.db
       - MODEL_CHECKPOINT_PATH=models/chest_xray_densenet121.pt
       - GRADCAM_OUTPUT_DIR=static/gradcam_outputs
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GENAI_MODEL=${GENAI_MODEL: 'gemini-2.5-flash'}
+      - JWT_SECRET_KEY
       - CORS_ORIGINS=*
     volumes:
       - ./models:/app/models
@@ -34,6 +35,7 @@ services:
     environment:
       - API_BASE_URL=http://api:8000
     depends_on:
+      - authentication
       - api
     restart: unless-stopped
 
