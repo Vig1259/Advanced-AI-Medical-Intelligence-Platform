@@ -1,8 +1,11 @@
-# --- Web framework / API ---
+# --- Web framework / API / Auth---
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 python-multipart==0.0.9
 pydantic==2.9.2
+jose==3.3.0
+passlib==1.7.4
+slowapi==0.1.9
 
 # --- Database ---
 sqlalchemy==2.0.35
