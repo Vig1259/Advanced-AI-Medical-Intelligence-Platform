@@ -1,44 +1,42 @@
 # Advanced AI Medical Intelligence Platform
 
-An end-to-end AI system for **chest X-ray pneumonia detection**, combining a
-deep learning classifier, Grad-CAM explainability, LLM-generated draft
-reports, a REST API, a prediction-history database, and a web UI.
+An end-to-end AI-powered platform for automated chest X-ray pneumonia detection, integrating deep learning, explainable AI, large language models, secure REST APIs, prediction history management, and an interactive web interface. The platform enables authenticated users to upload chest X-rays, receive AI-assisted diagnostic insights with visual explanations, and access previous prediction records through a secure dashboard.
 
-> ⚠️ **Disclaimer:** This is a research/demo project built for a technical
-> assessment. It is **not a certified medical device** and must never be used
-> for actual clinical diagnosis. All AI outputs require review by a licensed
-> physician.
-
+⚠️ Disclaimer: This project was developed for research and technical assessment purposes only. It is not a certified medical device and must not be used for clinical diagnosis or medical decision-making. All AI-generated predictions and reports should be reviewed and validated by a qualified healthcare professional.
 ---
 
 ## 1. Architecture
 
 ```
-                ┌─────────────────┐
-                │  Streamlit UI   |   (upload image, view results/history)
-                └────────┬────────┘
-                         │ HTTP
-                ┌────────▼─────────┐
-                │   FastAPI REST   │  /predict  /history  /health
-                │       API        │
-                └───┬─────────┬────┘
-                    │         │
-         ┌──────────▼───┐   ┌──▼──────────────┐
-         │ DL Inference │   │  SQLite / DB    │
-         │ (DenseNet121)│   │  prediction     │
-         │ + Grad-CAM   │   │  history        │
-         └──────┬───────┘   └─────────────────┘
+                ┌───────────────────┐
+                │   Streamlit UI    │  (login/register, upload image,
+                └────────┬──────────┘   view results/history)
+                         │ HTTP + Bearer token
+                ┌────────▼──────────┐
+                │   FastAPI REST    │  /auth  /predict  /history  /health
+                │        API        │  (rate limited: 5/min login, 10/min predict)
+                └───┬────────┬──────┘
+                    │        │
+         ┌──────────▼──┐   ┌─▼────────────────────┐
+         │ DL Inference│   │   SQLite / DB        │
+         │(DenseNet121)│   │ users + prediction   │
+         │ + Grad-CAM  │   │ history (per-user)   │
+         └──────┬──────┘   └──────────────────────┘
                 │
         ┌───────▼─────────┐
-        │   GEMNINI AI    │  draft report generation
-        │ (LLM reporting) │
+        │  Google Gemini  │  draft report generation
+        │  API (LLM)      │
         └─────────────────┘
 ```
 
-**Flow:** user uploads a chest X-ray → CNN classifies NORMAL/PNEUMONIA →
-Grad-CAM produces a heatmap explaining the decision → the prediction +
-Grad-CAM summary is sent to an LLM to draft a structured, hedged report →
-everything is persisted to the database → results are returned to the UI.
+**Flow:
+1. A new user registers and logs into the platform using secure JWT-based authentication.
+2. The user uploads a chest X-ray image through the Streamlit interface.
+3. The DenseNet121 model analyzes the image and predicts either NORMAL or PNEUMONIA, along with confidence scores.
+4. Grad-CAM generates a heatmap highlighting the image regions that contributed most to the model's prediction, improving interpretability.
+5. The predicted class, confidence scores, and Grad-CAM findings are provided to the Google Gemini API, which generates a structured preliminary radiology-style      report.
+6. The prediction, Grad-CAM visualization, AI-generated report, and timestamp are securely stored in the SQLite database under the authenticated user's account.
+7. The complete results are returned to the Streamlit dashboard, where users can review the current prediction and access their previous prediction history.
 
 ## 2. Tech Stack
 
@@ -47,7 +45,7 @@ everything is persisted to the database → results are returned to the UI.
 | Deep Learning | PyTorch, torchvision (DenseNet121, transfer learning) |
 | Explainable AI | Grad-CAM (custom implementation, hooks into last conv block) |
 | LLM | GEMINI AI (`gemini-2.5-flash` by default, configurable) |
-| API | FastAPI + Pydantic |
+| API | FastAPI + Pydantic + JWT |
 | Database | SQLAlchemy ORM, SQLite by default (swap `DATABASE_URL` for Postgres) |
 | Frontend | Streamlit |
 | Deployment | Docker + docker-compose |
@@ -194,7 +192,7 @@ until you're authenticated.
 ### 5.5 Docker (recommended for deployment)
 
 ```bash
-cp .env.example .env   # fill in OPENAI_API_KEY
+cp .env.example .env   # fill in GEMINI_API_KEY
 docker compose up --build
 ```
 
