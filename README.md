@@ -29,7 +29,7 @@ An end-to-end AI-powered platform for automated chest X-ray pneumonia detection,
         └─────────────────┘
 ```
 
-**Flow:
+Flow:
 1. A new user registers and logs into the platform using secure JWT-based authentication.
 2. The user uploads a chest X-ray image through the Streamlit interface.
 3. The DenseNet121 model analyzes the image and predicts either NORMAL or PNEUMONIA, along with confidence scores.
